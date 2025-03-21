@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Star Rail PVP Draft</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+        }
+
+        .ban-list {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 20px;
+        }
+
+        .ban-section,
+        .team {
+            width: 30%;
+            border: 1px solid white;
+            padding: 10px;
+            background: #333;
+        }
+
+        .selection-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+            padding: 20px;
+        }
+
+        .character {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            border: 1px solid #fff;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Honkai Star Rail PVP Draft</h1>
+    <h2 id="turn-indicator">Blue Team: Ban 1</h2>
+
+    <!-- Ban List -->
+    <div class="ban-list">
+        <div class="ban-section">
+            <h2>Blue Bans</h2>
+            <div id="blue-ban-list"></div>
+        </div>
+        <div class="ban-section">
+            <h2>Red Bans</h2>
+            <div id="red-ban-list"></div>
+        </div>
+    </div>
+
+    <!-- Character Selection -->
+    <div class="selection-container">
+        <div class="team">
+            <h2>Blue Team</h2>
+            <div id="blue-team-list"></div>
+        </div>
+        <div class="grid" id="character-grid"></div>
+        <div class="team">
+            <h2>Red Team</h2>
+            <div id="red-team-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const characters = [
+            { name: "Moze", icon: "images/moze.webp" },
+            { name: "March 7th Hunt", icon: "images/march7thhunt.webp" },
+            { name: "Gallagher", icon: "images/gallagher.webp" },
+            { name: "Misha", icon: "images/misha.webp" },
+            { name: "Xueyi", icon: "images/xueyi.webp" },
+            { name: "Hanya", icon: "images/hanya.webp" },
+            { name: "Guinaifen", icon: "images/guinaifen.webp" },
+            { name: "Lynx", icon: "images/lynx.webp" },
+            { name: "Luka", icon: "images/luka.webp" },
+            { name: "Yukong", icon: "images/yukong.webp" },
+            { name: "March 7th Preservation", icon: "images/march7thbaoho.webp" },
+            { name: "Dan Heng", icon: "images/danheng.webp" },
+            { name: "Arlan", icon: "images/arlan.webp" },
+            { name: "Asta", icon: "images/asta.webp" },
+            { name: "Herta", icon: "images/herta.webp" },
+            { name: "Serval", icon: "images/serval.webp" },
+            { name: "Natasha", icon: "images/natasha.webp" },
+            { name: "Pela", icon: "images/pela.webp" },
+            { name: "Sampo", icon: "images/sampo.webp" },
+            { name: "Hook", icon: "images/hook.webp" },
+            { name: "Qingque", icon: "images/qingque.webp" },
+            { name: "Tingyun", icon: "images/tingyun.webp" },
+            { name: "Sushang", icon: "images/sushang.webp" },
+            { name: "Mydei", icon: "images/mydei.webp" },
+            { name: "Tribbie", icon: "images/tribbie.webp" },
+            { name: "Aglaea", icon: "images/aglaea.webp" },
+            { name: "The Herta", icon: "images/theherta.webp" },
+            { name: "Trailblazer The Remembrance", icon: "images/trailblazerremembrance.webp" },
+            { name: "Fugue", icon: "images/fugue.webp" },
+            { name: "Sunday", icon: "images/sunday.webp" },
+            { name: "Rappa", icon: "images/rappa.webp" },
+            { name: "Lingsha", icon: "images/lingsha.webp" },
+            { name: "Feixiao", icon: "images/feixiao.webp" },
+            { name: "Yunli", icon: "images/yunli.webp" },
+            { name: "Jiaoqiu", icon: "images/jiaoqiu.webp" },
+            { name: "Jade", icon: "images/jade.webp" },
+            { name: "Firefly", icon: "images/firefly.webp" },
+            { name: "Boothill", icon: "images/boothill.webp" },
+            { name: "Robin", icon: "images/robin.webp" },
+            { name: "Trailblazer The Harmony", icon: "images/trailblazerharmony.webp" },
+            { name: "Aventurine", icon: "images/aventurine.webp" },
+            { name: "Acheron", icon: "images/acheron.webp" },
+            { name: "Sparkle", icon: "images/sparkle.webp" },
+            { name: "Black Swan", icon: "images/blackswan.webp" },
+            { name: "Dr. Ratio", icon: "images/drratio.webp" },
+            { name: "Ruan Mei", icon: "images/ruanmei.webp" },
+            { name: "Argenti", icon: "images/argenti.webp" },
+            { name: "HuoHuo", icon: "images/huohuo.webp" },
+            { name: "Topaz", icon: "images/topaz.webp" },
+            { name: "Jingliu", icon: "images/jingliu.webp" },
+            { name: "Dan Heng IL", icon: "images/danhengil.webp" },
+            { name: "Kafka", icon: "images/kafka.webp" },
+            { name: "Fuxuan", icon: "images/fuxuan.webp" },
+            { name: "Blade", icon: "images/blade.webp" },
+            { name: "Luocha", icon: "images/luocha.webp" },
+            { name: "Jing Yuan", icon: "images/jingyuan.webp" },
+            { name: "Silver Wolf", icon: "images/silverwolf.webp" },
+            { name: "Himeko", icon: "images/himeko.webp" },
+            { name: "Seele", icon: "images/seele.webp" },
+            { name: "Welt", icon: "images/welt.webp" },
+            { name: "Bronya", icon: "images/bronya.webp" },
+            { name: "Gepard", icon: "images/gepard.webp" },
+            { name: "Clara", icon: "images/clara.webp" },
+            { name: "Yanqing", icon: "images/yanqing.webp" },
+            { name: "Trailblazer The Destruction", icon: "images/trailblazerdestruction.webp" },
+            { name: "Trailblazer The Preservation", icon: "images/trailblazerpreservation.webp" },
+            { name: "Bailu", icon: "images/bailu.webp" }
+        ];
+
+        const draftOrder = [
+            "blue-ban", "red-ban",
+            "blue-pick", "red-pick", "red-pick", "blue-pick",
+            "red-ban", "blue-ban",
+            "red-pick", "blue-pick", "blue-pick", "red-pick", "red-pick", "blue-pick", "blue-pick", "red-pick"
+        ];
+
+        let turnIndex = 0;
+        let blueBans = [];
+        let redBans = [];
+        let bluePicks = [];
+        let redPicks = [];
+
+        function updateUI() {
+            document.getElementById("turn-indicator").textContent = draftOrder[turnIndex].replace("-", " ").toUpperCase();
+        }
+
+        function selectCharacter(character) {
+            if (blueBans.includes(character) || redBans.includes(character) || bluePicks.includes(character) || redPicks.includes(character)) {
+                return;
+            }
+
+            if (draftOrder[turnIndex] === "blue-ban") {
+                blueBans.push(character);
+                addCharacterToList("blue-ban-list", character);
+            } else if (draftOrder[turnIndex] === "red-ban") {
+                redBans.push(character);
+                addCharacterToList("red-ban-list", character);
+            } else if (draftOrder[turnIndex] === "blue-pick") {
+                bluePicks.push(character);
+                addCharacterToList("blue-team-list", character);
+            } else if (draftOrder[turnIndex] === "red-pick") {
+                redPicks.push(character);
+                addCharacterToList("red-team-list", character);
+            }
+
+            turnIndex++;
+            if (turnIndex < draftOrder.length) {
+                updateUI();
+            }
+        }
+
+        function addCharacterToList(listId, character) {
+            const list = document.getElementById(listId);
+            const div = document.createElement("div");
+            div.classList.add("character");
+            div.style.backgroundImage = `url('${character.icon}')`;
+            list.appendChild(div);
+        }
+
+        characters.forEach(character => {
+            const div = document.createElement("div");
+            div.classList.add("character");
+            div.id = character.name;
+            div.style.backgroundImage = `url('${character.icon}')`;
+            div.onclick = () => selectCharacter(character.name);
+            document.getElementById("character-grid").appendChild(div);
+        });
+
+        updateUI();
+    </script>
+</body>
+
+</html>
